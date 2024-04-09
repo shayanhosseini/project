@@ -11,13 +11,14 @@ from forms import CreatePostForm, RegisterForm, LoginFrom, CommentForm
 from flask_gravatar import Gravatar
 from markupsafe import Markup
 from functools import wraps
+import os
 if has_request_context():
     print(request.args)
 
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -37,7 +38,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 ##CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///blog.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -48,7 +49,6 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
-
     posts = relationship("BlogPost", back_populates="author")
 with app.app_context():
     db.create_all()  
